@@ -1,14 +1,15 @@
-// src/components/Login.js
+// src/components/SignUp.js
 import React, { useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Login = () => {
+const SignUp = () => {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { login, loginWithGoogle } = useAuth();
+  const passwordConfirmRef = useRef();
+  const { signup } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,26 +17,17 @@ const Login = () => {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      setError('');
-      setLoading(true);
-      await login(emailRef.current.value, passwordRef.current.value);
-      navigate('/');
-    } catch {
-      setError('Failed to log in');
+    if (passwordRef.current.value !== passwordConfirmRef.current.value) {
+      return setError('Passwords do not match');
     }
 
-    setLoading(false);
-  }
-
-  async function handleGoogleLogin() {
     try {
       setError('');
       setLoading(true);
-      await loginWithGoogle();
+      await signup(emailRef.current.value, passwordRef.current.value);
       navigate('/');
     } catch {
-      setError('Failed to log in with Google');
+      setError('Failed to create an account');
     }
 
     setLoading(false);
@@ -45,7 +37,7 @@ const Login = () => {
     <>
       <Card className="w-50 mx-auto mt-5">
         <Card.Body>
-          <h2 className="text-center mb-4">Log In</h2>
+          <h2 className="text-center mb-4">Sign Up</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group id="email">
@@ -56,15 +48,16 @@ const Login = () => {
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" ref={passwordRef} required />
             </Form.Group>
+            <Form.Group id="password-confirm">
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control type="password" ref={passwordConfirmRef} required />
+            </Form.Group>
             <Button disabled={loading} className="w-100 mt-3" type="submit">
-              Log In
+              Sign Up
             </Button>
           </Form>
-          <Button className="w-100 mt-3" onClick={handleGoogleLogin}>
-            Log In with Google
-          </Button>
           <div className="w-100 text-center mt-3">
-            Need an account? <Link to="/signup">Sign Up</Link>
+            Already have an account? <Link to="/login">Log In</Link>
           </div>
         </Card.Body>
       </Card>
@@ -72,4 +65,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
